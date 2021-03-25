@@ -1,0 +1,19 @@
+Propuestas/Motivación
+
+Comparación de viajes y causas de crecimiento. 
+
+evolución de residencias sanitarias.
+
+como en que rango de genero.
+
+cruce marchas/eventos publicos con el covid.
+
+nuevas cepas cada cuantos contagios y la emigración.
+
+como ah ayudado la pandemia a evitar la contaminación del aire cruzar con base de movilidad.
+
+natalidad afectada por covid.
+
+aprobación de personajes públicos, calidad de vida por comuna, diferencias sociales que se reflejan en los casos.
+
+motivación: por primera vez coincide una pandemia y tenemos la capacidad de registrar tantos datos, propicio para el data mining, así, podemos entender como el covid a cambiado nuestras expectativas frente a la natalidad, nuestra calidad de aire como pais o algo mas profundo como la contaminación durante una pandemia.
