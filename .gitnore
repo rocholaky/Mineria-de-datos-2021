@@ -19,5 +19,8 @@ ipython_config.py
 
 #pycache:
 *.pyc
-git rm *.pyc
+# git rm *.pyc
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
 
