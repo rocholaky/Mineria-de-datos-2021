@@ -62,3 +62,18 @@ def get_incidencia():
 def get_vacunacion():
     values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto76/vacunacion.csv")
     return values
+
+# obtención de los datos de transporte:
+def get_bip_transactionxcomuna():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto41/BIPComuna_std.csv")
+    return values
+
+# obtencion de los datos de transporte totales:
+def get_bip_total_transaction():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto41/BIPTotal_std.csv")
+    return values
+
+# get viajes comunas RM:
+def get_viajes_comuna():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto42/ViajesComunas_std.csv")
+    return values

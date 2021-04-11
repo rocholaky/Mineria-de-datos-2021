@@ -3,8 +3,18 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from datetime import datetime
-from utils.util_plot import plot_timeSeries
+from utils.util_plot import plot_timeSeries, barplot_timeSeries
+import matplotlib
+
+### regiones para dividir los datos
+NORTE = ['Arica y Parinacota', 'Antofagasta', 'Atacama',
+                'Coquimbo', 'Valparaíso']
+
+CENTRO = ['Ñuble', 'O’Higgins', 'Maule', 'Metropolitana']
+
+SUR = ['Aysén', 'Biobío', 'Los Lagos', 'Los Ríos', 'Aysén', 'Magallanes']
+
+
 
 def plot_fallecimientos():
     # obtenemos el dataframe de fallecimientos:
@@ -112,10 +122,22 @@ plot_timeSeries(densidad_contagios_x_dia, "Porcentage de la población contagiad
 plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día")
 plot_fallecimientos()
 
-
 ###### vacunaciones ##########################################
 # obtenemos los datos de las vacunas
 vac_x_comuna = utils.dataRetrieval.get_vacunacion()
+# guardamos los valores totales para luego plotearlos
+vac_total = vac_x_comuna[vac_x_comuna["Region"] == "Total"]
+# seteamos los indices del dataframe:
+vac_total.set_index("Dosis", inplace=True)
+del vac_total["Region"]
+# traponemos el DataFrame para que quede como una serie de tiempo.
+vac_total = vac_total.transpose()
+# dejamos solamente las que representan un mes del año:
+vac_total.index = pd.to_datetime(vac_total.index, format='%Y-%m-%d')
+vac_total = vac_total.iloc[vac_total.index.is_month_start]
+vac_total.index = vac_total.index.strftime('%Y-%m')
+
+
 # eliminamos los valores totales:
 vac_x_comuna.drop(vac_x_comuna[vac_x_comuna["Region"] == "Total"].index, inplace=True)
 # dividimos en primera y segunda dosis:
@@ -136,14 +158,51 @@ vac_x_comuna_d2 = vac_x_comuna_d2.div(R_population, axis=0)
 vac_x_comuna_d1 = vac_x_comuna_d1.transpose()
 vac_x_comuna_d2 = vac_x_comuna_d2.transpose()
 
-# ploteamos:
-plot_timeSeries(vac_x_comuna_d1, "Cantidad Vacunas", "Vacunas primera dosis en función del tiempo")
-plot_timeSeries(vac_x_comuna_d2, "Cantidad Vacunas", "Vacunas segunda dosis en función del tiempo")
+
+# ploteamos la vacunación a nivel nacional:
+barplot_timeSeries(vac_total, "Cantidad Vacunas", "Vacunas primera dosis en función del tiempo", tick=False, stacked=True)
+
+### graficamos por región
+## plot norte:
+plot_timeSeries(vac_x_comuna_d1[NORTE], "Cantidad Vacunas", "Vacunas primera dosis Norte")
+plot_timeSeries(vac_x_comuna_d2[NORTE], "Cantidad Vacunas", "Vacunas segunda dosis Norte")
+
+#plot centro:
+plot_timeSeries(vac_x_comuna_d1[CENTRO], "Cantidad Vacunas", "Vacunas primera dosis Centro")
+plot_timeSeries(vac_x_comuna_d2[CENTRO], "Cantidad Vacunas", "Vacunas segunda dosis Centro")
 
 
+## plot sur:
+plot_timeSeries(vac_x_comuna_d1[SUR], "Cantidad Vacunas", "Vacunas primera dosis SUR")
+plot_timeSeries(vac_x_comuna_d2[SUR], "Cantidad Vacunas", "Vacunas segunda dosis SUR")
 
 
+## plotear subida transacciones bip vs contagios región metropolitana:
+# obtenemos las transacciones bip!
+transaccion = utils.dataRetrieval.get_bip_total_transaction()
+# Pasamos estos datos a datetime
+pd.to_datetime(transaccion["Fecha"], format='%Y-%m')
+# seteamos el indice
+transaccion = transaccion.set_index("Fecha")
+# unimos estos datos y los de la región metropolitana de contagios
+transaccion = transaccion.join(densidad_contagios_x_dia['Metropolitana'])
+# sacamos los nulos
+transaccion = transaccion.dropna()
 
-
+# plot on a 2 y label plot:
+fig, ax = plt.subplots()
+# ajustamos los parámetros
+fig.subplots_adjust(right=0.75)
+# Generamos el gráfico de barra
+transaccion.plot(y='Transacciones', kind='bar', ax=ax)
+# generamos el gráfico de linea
+transaccion.plot( y='Metropolitana', ax=ax,secondary_y=True, use_index=False, color='r')
+# damos los atributos del gráfico
+ax.set_xticklabels([x.strftime("%Y-%m-%d") for x in transaccion.index], rotation=45)
+ax.set_xlabel("Fecha")
+ax.set_ylabel('Cantidad de Transacciones bip!')
+ax.set_title("contagios y Transacciones bip en Marzo-Mayo  2020")
+ax.right_ax.set_ylabel('% población región metropolitana')
+plt.show()
 
 
