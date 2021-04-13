@@ -113,9 +113,9 @@ ax.set_prop_cycle('color', plt.cm.Spectral(np.linspace(0, 1, len(MP2.columns))))
     # en el ax ponemos el plot generado con pandas
 ax = MP.plot(ax=ax)
 ax.set_facecolor('#808080')
-ax.set_title('Cantidad de MP10 en el aire en funcion del tiempo')
+ax.set_title('Cantidad de MP 2.5 en el aire en funcion del tiempo')
 ax.set_xlabel('Fecha')
-ax.set_ylabel('Cantidad de MP10 en el aire')
+ax.set_ylabel('Cantidad de MP 2.5 en el aire')
 ax.grid(True)
 
 MP2.describe()
