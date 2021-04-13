@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import matplotlib.ticker as ticker
 
 
 # fución que plotea series de tiempo, es necesario que la
@@ -37,14 +36,9 @@ def plot_timeSeries(ts, ylabel, title,fig_size=(7, 6)):
     ax.grid(True)
     # mostramos el gráfico
     plt.show()
-<<<<<<< Updated upstream
-
-
-=======
     
     
->>>>>>> Stashed changes
-# fución que plotea series de tiempo en barplot, es necesario que la
+    # fución que plotea series de tiempo en barplot, es necesario que la
 # serie de tiempo esté tenga indices de las fechas.
 def barplot_timeSeries(ts, ylabel, title,fig_size=(7, 6), tick=True, stacked = False):
     # generamos los plots
