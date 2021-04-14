@@ -62,7 +62,6 @@ def get_vacunacion():
     values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto76/vacunacion.csv")
     return values
 
-<<<<<<< Updated upstream
 # obtención de los datos de transporte:
 def get_bip_transactionxcomuna():
     values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto41/BIPComuna_std.csv")
