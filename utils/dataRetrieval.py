@@ -76,7 +76,7 @@ def get_bip_total_transaction():
 def get_viajes_comuna():
     values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto42/ViajesComunas_std.csv")
     return values
-=======
+
 # obtención de residencias:
 def get_residencias():
     values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto36/ResidenciasSanitarias.csv")
