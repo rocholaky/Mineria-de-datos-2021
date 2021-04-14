@@ -98,4 +98,5 @@ def get_MP(particulado = "2.5", año = "2019"):
     values = pd.read_csv(
         "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto43/MP"+ particulado+"-"+ año +"_std.csv")
     return values
->>>>>>> Stashed changes
+
+
