@@ -7,7 +7,7 @@ import matplotlib.ticker as ticker
 
 # fución que plotea series de tiempo, es necesario que la
 # serie de tiempo esté tenga indices de las fechas.
-def plot_timeSeries(ts, ylabel, title,fig_size=(7, 6)):
+def plot_timeSeries(ts, ylabel, title, fig_size=(7, 6)):
     # volvemos este valor datetime
     ts.index = pd.to_datetime(ts.index)
     # generamos los plots
