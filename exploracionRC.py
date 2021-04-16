@@ -131,17 +131,17 @@ def get_densidad_contagios(R_population, Dates):
 
 def plot_contagios_dia(Contagios_por_dia):
 
-    plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día no normalizados", figsize=(10, 10))
+    plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día no normalizados", fig_size=(10, 10))
     plt.close()
 
 
 def plot_contagios_q_dia(Contagios_q_dias):
 
-    plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios acumulados po 15 días",figsize=(10, 10))
+    plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios acumulados po 15 días",fig_size=(10, 10))
     plt.close()
 
 def plot_densidad_contagiados(densidad_contagios_x_dia):
-    plot_timeSeries(densidad_contagios_x_dia, "Cantidad contagios", "Contagios por día normalizados", figsize=(10, 10))
+    plot_timeSeries(densidad_contagios_x_dia, "Cantidad contagios", "Contagios por día normalizados", fig_size=(10, 10))
     plt.close()
 
 def plot_boxplot_contagios(Contagios_q_dias):
