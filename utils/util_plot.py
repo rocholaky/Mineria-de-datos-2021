@@ -104,7 +104,8 @@ def box_plot_df(df, title, xlabel, ylabel,size = (20,10)):
     # ladeamos los valores en 45 grados
     plt.xticks(rotation=90)
     plt.title(title)
-    plt.xlabel()
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     plt.show()
     plt.close()
     return
