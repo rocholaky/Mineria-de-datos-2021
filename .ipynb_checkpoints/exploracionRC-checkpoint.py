@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import utils.dataRetrieval
 import numpy as np
 import pandas as pd

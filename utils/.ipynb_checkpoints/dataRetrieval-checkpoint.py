@@ -59,20 +59,32 @@ def get_incidencia():
 
 # obtencion de vacunas:
 def get_vacunacion():
+<<<<<<< HEAD
     values = pd.read_csv(
         "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto76/vacunacion.csv")
+=======
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto76/vacunacion.csv")
+>>>>>>> 7105395ac8c1c689d13e93e0acaa47f3a1a7da7b
     return values
 
 # obtención de los datos de transporte:
 def get_bip_transactionxcomuna():
+<<<<<<< HEAD
     values = pd.read_csv(
         "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto41/BIPComuna_std.csv")
+=======
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto41/BIPComuna_std.csv")
+>>>>>>> 7105395ac8c1c689d13e93e0acaa47f3a1a7da7b
     return values
 
 # obtencion de los datos de transporte totales:
 def get_bip_total_transaction():
+<<<<<<< HEAD
     values = pd.read_csv(
         "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto41/BIPTotal_std.csv")
+=======
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto41/BIPTotal_std.csv")
+>>>>>>> 7105395ac8c1c689d13e93e0acaa47f3a1a7da7b
     return values
 
 # get viajes comunas RM:
@@ -100,3 +112,8 @@ def get_MP(particulado = "2.5", año = "2019"):
     values = pd.read_csv(
         "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto43/MP"+ particulado+"-"+ año +"_std.csv")
     return values
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 7105395ac8c1c689d13e93e0acaa47f3a1a7da7b
