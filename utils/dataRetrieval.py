@@ -6,7 +6,17 @@ import matplotlib.pyplot as plt
 date = '2020-03-30'
 
 # Obtención de casos totales en una región dada una fecha:
+
 def get_Casos_Totales_Region_on_date(date):
+    """Form a complex number.
+    Parameters
+    ----------
+    date : string
+        Description of parameter `x`.
+    y
+    Description of parameter `y` (with type not specified).
+
+    """
     values = pd.read_csv(
         "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto4/" + date + "-CasosConfirmados-totalRegional.csv",
         index_col='Region')
@@ -100,3 +110,26 @@ def get_MP(particulado = "2.5", año = "2019"):
     values = pd.read_csv(
         "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto43/MP"+ particulado+"-"+ año +"_std.csv")
     return values
+
+# Obtención de viajes
+def get_transporte_aereo():
+    """Entrega la tabla del producto 40, transportes aereos de pasajeros semanal.
+
+    """
+    values = pd.read_csv(
+        "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto40/TransporteAereo_std.csv"
+    )
+    return values
+
+# Obtención de movilidad por comuna
+def get_movilidad_por_comuna():
+    """Entrega las tablas del producto 82 (movilidad por comuna) en una lista de tamaño 2. Primero los días de semana y después fines de semana.
+    
+    """
+    values_weeks = pd.read_csv(
+        "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto82/ISCI_weeks.csv"
+    )
+    values_weekends = pd.read_csv(
+        "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto82/ISCI_weekends.csv"
+    )
+    return [values_weeks, values_weekends]
