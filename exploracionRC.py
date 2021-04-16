@@ -129,15 +129,20 @@ def get_densidad_contagios(R_population, Dates):
 
 
 
-def plot_contagios_dia(R_population, Dates):
+def plot_contagios_dia(Contagios_por_dia):
 
-    Contagios_por_dia, Contagios_q_dias, _ = get_densidad_contagios(R_population, Dates)
-    plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios por día",fig_size=(10, 10))
-    plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día", fig_size=(10, 10))
+    plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día no normalizados", figsize=(10, 10))
     plt.close()
 
 
+def plot_contagios_q_dia(Contagios_q_dias):
 
+    plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios acumulados po 15 días",figsize=(10, 10))
+    plt.close()
+
+def plot_densidad_contagiados(densidad_contagios_x_dia):
+    plot_timeSeries(densidad_contagios_x_dia, "Cantidad contagios", "Contagios por día normalizados", figsize=(10, 10))
+    plt.close()
 
 def plot_boxplot_contagios(Contagios_q_dias):
     # covarianza
@@ -207,21 +212,6 @@ def plot_vacunacion(R_population):
 
     # ploteamos la vacunación a nivel nacional:
     barplot_timeSeries(vac_total, "Cantidad Vacunas", "Vacunas primera dosis en función del tiempo", tick=False, stacked=True)
-
-    ### graficamos por región
-    ## plot norte:
-    plot_timeSeries(vac_x_comuna_d1[NORTE], "Cantidad Vacunas", "Vacunas primera dosis Norte")
-    plot_timeSeries(vac_x_comuna_d2[NORTE], "Cantidad Vacunas", "Vacunas segunda dosis Norte")
-
-    #plot centro:
-    plot_timeSeries(vac_x_comuna_d1[CENTRO], "Cantidad Vacunas", "Vacunas primera dosis Centro")
-    plot_timeSeries(vac_x_comuna_d2[CENTRO], "Cantidad Vacunas", "Vacunas segunda dosis Centro")
-
-
-    ## plot sur:
-    plot_timeSeries(vac_x_comuna_d1[SUR], "Cantidad Vacunas", "Vacunas primera dosis SUR")
-    plot_timeSeries(vac_x_comuna_d2[SUR], "Cantidad Vacunas", "Vacunas segunda dosis SUR")
-
 
 ## plotear subida transacciones bip vs contagios región metropolitana:
 def plot_transactions(R_population, Dates):
