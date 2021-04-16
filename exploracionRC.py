@@ -132,8 +132,8 @@ def get_densidad_contagios(R_population, Dates):
 def plot_contagios_dia(R_population, Dates):
 
     Contagios_por_dia, Contagios_q_dias, _ = get_densidad_contagios(R_population, Dates)
-    plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios por día",figsize=(10, 10))
-    plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día", figsize=(10, 10))
+    plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios por día",fig_size=(10, 10))
+    plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día", fig_size=(10, 10))
     plt.close()
 
 
