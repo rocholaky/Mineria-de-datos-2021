@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
-
+import seaborn as sns
 # fución que plotea series de tiempo, es necesario que la
 # serie de tiempo esté tenga indices de las fechas.
 def plot_timeSeries(ts, ylabel, title,fig_size=(7, 6)):
@@ -96,10 +96,10 @@ def plot_df(df, title, ylabel, xlabel = 'Fecha',  size = (20,9), legend = True):
     plt.close()
     return
 
-def box_plot_df(df,size = (20,10)):
+def box_plot_df(df, title, size = (20,10)):
     '''Grafica boxplot serie de tiempo de la calidad del aire'''
     fig, ax = plt.subplots(figsize=size)
-    fig.suptitle('bold figure suptitle', fontsize=14, fontweight='bold')
+    fig.suptitle(title, fontsize=14, fontweight='bold')
     ax = df.boxplot()
     # ladeamos los valores en 45 grados
     plt.xticks(rotation=90)
@@ -107,4 +107,21 @@ def box_plot_df(df,size = (20,10)):
     plt.close()
     return
 
+def corr_plot_df(df):
+    # covarianza
+    corr = df.corr()
+    # Generate a mask for the upper triangle
+    mask = np.triu(np.ones_like(corr, dtype=bool))
 
+    # Set up the matplotlib figure
+    f, ax = plt.subplots(figsize=(11, 9))
+
+    # Generate a custom diverging colormap
+    cmap = sns.diverging_palette(230, 20, as_cmap=True)
+
+    # Draw the heatmap with the mask and correct aspect ratio
+    sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
+                square=True, linewidths=.5, cbar_kws={"shrink": .5})
+    plt.show()
+    plt.close()
+    return
