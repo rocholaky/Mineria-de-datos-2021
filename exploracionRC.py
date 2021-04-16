@@ -132,19 +132,14 @@ def get_densidad_contagios(R_population, Dates):
 def plot_contagios_dia(R_population, Dates):
 
     Contagios_por_dia, Contagios_q_dias, _ = get_densidad_contagios(R_population, Dates)
-    plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios por día")
-    plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día")
-    plot_fallecimientos()
+    plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios por día",figsize=(10, 10))
+    plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día", figsize=(10, 10))
     plt.close()
 
-    # generamos un boxplot:
-    fig, ax = plt.subplots()
-    ax = Contagios_q_dias.boxplot()
-    # ladeamos los valores en 45 grados
-    plt.xticks(rotation=90)
-    plt.show()
-    plt.close()
 
+
+
+def plot_boxplot_contagios(Contagios_q_dias):
     # covarianza
     corr = Contagios_q_dias.corr()
     # Generate a mask for the upper triangle
@@ -159,6 +154,15 @@ def plot_contagios_dia(R_population, Dates):
     # Draw the heatmap with the mask and correct aspect ratio
     sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
                 square=True, linewidths=.5, cbar_kws={"shrink": 1})
+    plt.show()
+    plt.close()
+
+def plot_correlacion_contagios(Contagios_q_dias):
+    # generamos un boxplot:
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax = Contagios_q_dias.boxplot()
+    # ladeamos los valores en 45 grados
+    plt.xticks(rotation=90)
     plt.show()
     plt.close()
 
