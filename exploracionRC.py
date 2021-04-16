@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import utils.dataRetrieval
 import numpy as np
 import pandas as pd
@@ -51,36 +50,40 @@ def plot_fallecimientos():
     plt.show()
 
 
-# obtenemos los contagios nacionales:
-contagios_nacionales = utils.dataRetrieval.get_total_nacional()
+def plot_contagios_nacionales():
+    # obtenemos los contagios nacionales:
+    contagios_nacionales = utils.dataRetrieval.get_total_nacional()
 
-# obtenemos contagios por región:
-contagios_comuna = utils.dataRetrieval.get_Casos_Totales_comunas_incr()
-# sacamos la columna "Tasa":
-contagios_comuna = contagios_comuna.drop('Tasa', axis=1)
-# sacamos el código de la columna y obtener casos sumados:
-connected_regions = contagios_comuna.drop(["Codigo comuna", "Codigo region"], axis=1).groupby("Region").sum()
-# obtenemos la población por region en formato de DataFrame
-# donde los indices son Región y la columna es la cantidad de población:
-# esto permite hacer divisiones por indice.
-R_population = connected_regions["Poblacion"]
-# sacamos la población y trasponemos la matriz
-connected_regions = connected_regions.drop("Poblacion", axis=1).transpose()
+    # obtenemos contagios por región:
+    contagios_comuna = utils.dataRetrieval.get_Casos_Totales_comunas_incr()
+    # sacamos la columna "Tasa":
+    contagios_comuna = contagios_comuna.drop('Tasa', axis=1)
+    # sacamos el código de la columna y obtener casos sumados:
+    connected_regions = contagios_comuna.drop(["Codigo comuna", "Codigo region"], axis=1).groupby("Region").sum()
+    # obtenemos la población por region en formato de DataFrame
+    # donde los indices son Región y la columna es la cantidad de población:
+    # esto permite hacer divisiones por indice.
+    R_population = connected_regions["Poblacion"]
+    # sacamos la población y trasponemos la matriz
+    connected_regions = connected_regions.drop("Poblacion", axis=1).transpose()
 
-# obtenemos las fechas sin los titulos 'Region', 'Codigo region', 'Comuna', 'Codigo comuna', 'Poblacion'
-Dates = list(contagios_comuna)[5:]
+    # obtenemos las fechas sin los titulos 'Region', 'Codigo region', 'Comuna', 'Codigo comuna', 'Poblacion'
+    Dates = list(contagios_comuna)[5:]
 
-# obtenemos densidad de contagiados
-connected_regions = connected_regions/R_population
-plot_timeSeries(connected_regions, "Densidad Contagiados proporcional a la población", "Cantidad de Contagios por Región Acumulado")
+    # obtenemos densidad de contagiados
+    connected_regions = connected_regions / R_population
+    plot_timeSeries(connected_regions, "Densidad Contagiados proporcional a la población",
+                    "Cantidad de Contagios por Región Acumulado")
+    return R_population, Dates
 
 
 
-# Procedemos a obtener los contagios por Región no incrementales:
-# generamos dataframe
-Contagios_por_dia = pd.DataFrame()
-# llenamos dataframe con fechas
-for date in Dates:
+def get_densidad_contagios(R_population, Dates):
+    # Procedemos a obtener los contagios por Región no incrementales:
+    # generamos dataframe
+    Contagios_por_dia = pd.DataFrame()
+    # llenamos dataframe con fechas
+    for date in Dates:
         try:
             # try to do this
             # obtenemos el data Frame de los casos totales por region en la fecha date
@@ -88,13 +91,13 @@ for date in Dates:
             # obtenemos las columnas
             colum_value = list(df_date.columns.values)
 
-            #debido a la poca rigurosidad del dataset es necesario ponernos en distintos casos.
+            # debido a la poca rigurosidad del dataset es necesario ponernos en distintos casos.
             if " Casos nuevos" in colum_value:
                 key_contagiados = " Casos nuevos"
             elif "Casos  nuevos" in colum_value:
                 key_contagiados = "Casos  nuevos"
             elif "Casos  nuevos  totales" in colum_value:
-                key_contagiados= "Casos  nuevos  totales"
+                key_contagiados = "Casos  nuevos  totales"
             elif 'Casos nuevos totales' in colum_value:
                 key_contagiados = "Casos nuevos totales"
             else:
@@ -104,7 +107,7 @@ for date in Dates:
             column_contagiados = df_date[key_contagiados].values[:-1]
             # existen casos donde hay más valores pero estos no nos interesan por lo que tomamos
             # solamente los 16 primeros que son las regiones
-            if len(column_contagiados>16):
+            if len(column_contagiados > 16):
                 # obtenemos las regiones
                 column_contagiados = column_contagiados[:16]
             # lo agregamos como columna al data frame
@@ -113,128 +116,136 @@ for date in Dates:
             # if error do this
             pass
 
+    # agregamos los indices de las regiones
+    Contagios_por_dia.index = df_date["Region"].values[:16]
+    # dividimos por la población para obtener la densidad poblacional en porcentage
+    densidad_contagios_x_dia = Contagios_por_dia.div(R_population, axis=0).transpose() * 100
+    # Trasponemos los datos.
+    Contagios_por_dia = Contagios_por_dia.transpose()
+    densidad_contagios_x_dia.index = pd.to_datetime(densidad_contagios_x_dia.index)
+    Contagios_q_dias = densidad_contagios_x_dia.resample('SM').sum()
+    return Contagios_por_dia, Contagios_q_dias, densidad_contagios_x_dia
 
 
-#agregamos los indices de las regiones
-Contagios_por_dia.index = df_date["Region"].values[:16]
-# dividimos por la población para obtener la densidad poblacional en porcentage
-densidad_contagios_x_dia = Contagios_por_dia.div(R_population, axis=0).transpose()*100
-# Trasponemos los datos.
-Contagios_por_dia = Contagios_por_dia.transpose()
-densidad_contagios_x_dia.index = pd.to_datetime(densidad_contagios_x_dia.index)
-Contagios_q_dias = densidad_contagios_x_dia.resample('SM').sum()
 
-plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios por día")
-plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día")
-plot_fallecimientos()
-plt.close()
 
-# generamos un boxplot:
-fig, ax = plt.subplots()
-ax = Contagios_q_dias.boxplot()
-# ladeamos los valores en 45 grados
-plt.xticks(rotation=90)
-plt.show()
-plt.close()
+def plot_contagios_dia(R_population, Dates):
 
-# covarianza
-corr = Contagios_q_dias.corr()
-# Generate a mask for the upper triangle
-mask = np.triu(np.ones_like(corr, dtype=bool))
+    Contagios_por_dia, Contagios_q_dias, _ = get_densidad_contagios(R_population, Dates)
+    plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios por día")
+    plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día")
+    plot_fallecimientos()
+    plt.close()
 
-# Set up the matplotlib figure
-f, ax = plt.subplots(figsize=(11, 9))
+    # generamos un boxplot:
+    fig, ax = plt.subplots()
+    ax = Contagios_q_dias.boxplot()
+    # ladeamos los valores en 45 grados
+    plt.xticks(rotation=90)
+    plt.show()
+    plt.close()
 
-# Generate a custom diverging colormap
-cmap = sns.diverging_palette(230, 20, as_cmap=True)
+    # covarianza
+    corr = Contagios_q_dias.corr()
+    # Generate a mask for the upper triangle
+    mask = np.triu(np.ones_like(corr, dtype=bool))
 
-# Draw the heatmap with the mask and correct aspect ratio
-sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
-            square=True, linewidths=.5, cbar_kws={"shrink": .5})
-plt.show()
-plt.close()
+    # Set up the matplotlib figure
+    f, ax = plt.subplots(figsize=(11, 9))
+
+    # Generate a custom diverging colormap
+    cmap = sns.diverging_palette(230, 20, as_cmap=True)
+
+    # Draw the heatmap with the mask and correct aspect ratio
+    sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
+                square=True, linewidths=.5, cbar_kws={"shrink": 1})
+    plt.show()
+    plt.close()
 
 
 ###### vacunaciones ##########################################
-# obtenemos los datos de las vacunas
-vac_x_comuna = utils.dataRetrieval.get_vacunacion()
-# guardamos los valores totales para luego plotearlos
-vac_total = vac_x_comuna[vac_x_comuna["Region"] == "Total"]
-# seteamos los indices del dataframe:
-vac_total.set_index("Dosis", inplace=True)
-del vac_total["Region"]
-# traponemos el DataFrame para que quede como una serie de tiempo.
-vac_total = vac_total.transpose()
-# dejamos solamente las que representan un mes del año:
-vac_total.index = pd.to_datetime(vac_total.index, format='%Y-%m-%d')
-vac_total = vac_total.iloc[vac_total.index.is_month_start]
-vac_total.index = vac_total.index.strftime('%Y-%m')
+def plot_vacunacion(R_population):
+    # obtenemos los datos de las vacunas
+    vac_x_comuna = utils.dataRetrieval.get_vacunacion()
+    # guardamos los valores totales para luego plotearlos
+    vac_total = vac_x_comuna[vac_x_comuna["Region"] == "Total"]
+    # seteamos los indices del dataframe:
+    vac_total.set_index("Dosis", inplace=True)
+    del vac_total["Region"]
+    # traponemos el DataFrame para que quede como una serie de tiempo.
+    vac_total = vac_total.transpose()
+    # dejamos solamente las que representan un mes del año:
+    vac_total.index = pd.to_datetime(vac_total.index, format='%Y-%m-%d')
+    vac_total = vac_total.iloc[vac_total.index.is_month_start]
+    vac_total.index = vac_total.index.strftime('%Y-%m')
 
 
-# eliminamos los valores totales:
-vac_x_comuna.drop(vac_x_comuna[vac_x_comuna["Region"] == "Total"].index, inplace=True)
-# dividimos en primera y segunda dosis:
-vac_x_comuna_d1 = vac_x_comuna[vac_x_comuna["Dosis"] == 'Primera']
-# eliminamos la columna dosis al ya tenerlas separadas por dosis
-del vac_x_comuna_d1["Dosis"]
-# obtenemos los valores de las dosis 2:
-vac_x_comuna_d2 = vac_x_comuna[vac_x_comuna["Dosis"] == 'Segunda']
-# eliminamos la columna dosis
-del vac_x_comuna_d2["Dosis"]
-# seteamos los índices para que sean las regiones:
-vac_x_comuna_d1.set_index("Region", inplace=True)
-vac_x_comuna_d2.set_index("Region", inplace=True)
-# dividimos por la población de la región para así poder obtener la densidad poblacional.
-vac_x_comuna_d1 = vac_x_comuna_d1.div(R_population, axis=0)
-vac_x_comuna_d2 = vac_x_comuna_d2.div(R_population, axis=0)
-# trasponemos ambas para que queden como time series
-vac_x_comuna_d1 = vac_x_comuna_d1.transpose()
-vac_x_comuna_d2 = vac_x_comuna_d2.transpose()
+    # eliminamos los valores totales:
+    vac_x_comuna.drop(vac_x_comuna[vac_x_comuna["Region"] == "Total"].index, inplace=True)
+    # dividimos en primera y segunda dosis:
+    vac_x_comuna_d1 = vac_x_comuna[vac_x_comuna["Dosis"] == 'Primera']
+    # eliminamos la columna dosis al ya tenerlas separadas por dosis
+    del vac_x_comuna_d1["Dosis"]
+    # obtenemos los valores de las dosis 2:
+    vac_x_comuna_d2 = vac_x_comuna[vac_x_comuna["Dosis"] == 'Segunda']
+    # eliminamos la columna dosis
+    del vac_x_comuna_d2["Dosis"]
+    # seteamos los índices para que sean las regiones:
+    vac_x_comuna_d1.set_index("Region", inplace=True)
+    vac_x_comuna_d2.set_index("Region", inplace=True)
+    # dividimos por la población de la región para así poder obtener la densidad poblacional.
+    vac_x_comuna_d1 = vac_x_comuna_d1.div(R_population, axis=0)
+    vac_x_comuna_d2 = vac_x_comuna_d2.div(R_population, axis=0)
+    # trasponemos ambas para que queden como time series
+    vac_x_comuna_d1 = vac_x_comuna_d1.transpose()
+    vac_x_comuna_d2 = vac_x_comuna_d2.transpose()
 
 
-# ploteamos la vacunación a nivel nacional:
-barplot_timeSeries(vac_total, "Cantidad Vacunas", "Vacunas primera dosis en función del tiempo", tick=False, stacked=True)
+    # ploteamos la vacunación a nivel nacional:
+    barplot_timeSeries(vac_total, "Cantidad Vacunas", "Vacunas primera dosis en función del tiempo", tick=False, stacked=True)
 
-### graficamos por región
-## plot norte:
-plot_timeSeries(vac_x_comuna_d1[NORTE], "Cantidad Vacunas", "Vacunas primera dosis Norte")
-plot_timeSeries(vac_x_comuna_d2[NORTE], "Cantidad Vacunas", "Vacunas segunda dosis Norte")
+    ### graficamos por región
+    ## plot norte:
+    plot_timeSeries(vac_x_comuna_d1[NORTE], "Cantidad Vacunas", "Vacunas primera dosis Norte")
+    plot_timeSeries(vac_x_comuna_d2[NORTE], "Cantidad Vacunas", "Vacunas segunda dosis Norte")
 
-#plot centro:
-plot_timeSeries(vac_x_comuna_d1[CENTRO], "Cantidad Vacunas", "Vacunas primera dosis Centro")
-plot_timeSeries(vac_x_comuna_d2[CENTRO], "Cantidad Vacunas", "Vacunas segunda dosis Centro")
+    #plot centro:
+    plot_timeSeries(vac_x_comuna_d1[CENTRO], "Cantidad Vacunas", "Vacunas primera dosis Centro")
+    plot_timeSeries(vac_x_comuna_d2[CENTRO], "Cantidad Vacunas", "Vacunas segunda dosis Centro")
 
 
-## plot sur:
-plot_timeSeries(vac_x_comuna_d1[SUR], "Cantidad Vacunas", "Vacunas primera dosis SUR")
-plot_timeSeries(vac_x_comuna_d2[SUR], "Cantidad Vacunas", "Vacunas segunda dosis SUR")
+    ## plot sur:
+    plot_timeSeries(vac_x_comuna_d1[SUR], "Cantidad Vacunas", "Vacunas primera dosis SUR")
+    plot_timeSeries(vac_x_comuna_d2[SUR], "Cantidad Vacunas", "Vacunas segunda dosis SUR")
 
 
 ## plotear subida transacciones bip vs contagios región metropolitana:
-# obtenemos las transacciones bip!
-transaccion = utils.dataRetrieval.get_bip_total_transaction()
-# Pasamos estos datos a datetime
-pd.to_datetime(transaccion["Fecha"], format='%Y-%m')
-# seteamos el indice
-transaccion = transaccion.set_index("Fecha")
-# unimos estos datos y los de la región metropolitana de contagios
-transaccion = transaccion.join(densidad_contagios_x_dia['Metropolitana'])
-# sacamos los nulos
-transaccion = transaccion.dropna()
+def plot_transactions(R_population, Dates):
+    _, _, densidad_contagios_x_dia = get_densidad_contagios(R_population, Dates)
+    # obtenemos las transacciones bip!
+    transaccion = utils.dataRetrieval.get_bip_total_transaction()
+    # Pasamos estos datos a datetime
+    pd.to_datetime(transaccion["Fecha"], format='%Y-%m')
+    # seteamos el indice
+    transaccion = transaccion.set_index("Fecha")
+    # unimos estos datos y los de la región metropolitana de contagios
+    transaccion = transaccion.join(densidad_contagios_x_dia['Metropolitana'])
+    # sacamos los nulos
+    transaccion = transaccion.dropna()
 
-# plot on a 2 y label plot:
-fig, ax = plt.subplots()
-# ajustamos los parámetros
-fig.subplots_adjust(right=0.75)
-# Generamos el gráfico de barra
-transaccion.plot(y='Transacciones', kind='bar', ax=ax)
-# generamos el gráfico de linea
-transaccion.plot( y='Metropolitana', ax=ax,secondary_y=True, use_index=False, color='r')
-# damos los atributos del gráfico
-ax.set_xticklabels([x.strftime("%Y-%m-%d") for x in transaccion.index], rotation=45)
-ax.set_xlabel("Fecha")
-ax.set_ylabel('Cantidad de Transacciones bip!')
-ax.set_title("contagios y Transacciones bip en Marzo-Mayo  2020")
-ax.right_ax.set_ylabel('% población región metropolitana')
-plt.show()
+    # plot on a 2 y label plot:
+    fig, ax = plt.subplots()
+    # ajustamos los parámetros
+    fig.subplots_adjust(right=0.75)
+    # Generamos el gráfico de barra
+    transaccion.plot(y='Transacciones', kind='bar', ax=ax)
+    # generamos el gráfico de linea
+    transaccion.plot( y='Metropolitana', ax=ax,secondary_y=True, use_index=False, color='r')
+    # damos los atributos del gráfico
+    ax.set_xticklabels([x.strftime("%Y-%m-%d") for x in transaccion.index], rotation=45)
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel('Cantidad de Transacciones bip!')
+    ax.set_title("contagios y Transacciones bip en Marzo-Mayo  2020")
+    ax.right_ax.set_ylabel('% población región metropolitana')
+    plt.show()
 

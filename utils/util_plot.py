@@ -96,18 +96,20 @@ def plot_df(df, title, ylabel, xlabel = 'Fecha',  size = (20,9), legend = True):
     plt.close()
     return
 
-def box_plot_df(df, title, size = (20,10)):
+def box_plot_df(df, title, xlabel, ylabel,size = (20,10)):
     '''Grafica boxplot serie de tiempo de la calidad del aire'''
     fig, ax = plt.subplots(figsize=size)
     fig.suptitle(title, fontsize=14, fontweight='bold')
     ax = df.boxplot()
     # ladeamos los valores en 45 grados
     plt.xticks(rotation=90)
+    plt.title(title)
+    plt.xlabel()
     plt.show()
     plt.close()
     return
 
-def corr_plot_df(df):
+def corr_plot_df(df, title):
     # covarianza
     corr = df.corr()
     # Generate a mask for the upper triangle
@@ -122,6 +124,7 @@ def corr_plot_df(df):
     # Draw the heatmap with the mask and correct aspect ratio
     sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
                 square=True, linewidths=.5, cbar_kws={"shrink": .5})
+    plt.title(title)
     plt.show()
     plt.close()
     return
