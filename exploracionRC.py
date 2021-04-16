@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from utils.util_plot import plot_timeSeries, barplot_timeSeries
 import matplotlib
+import seaborn as sns
 
 ### regiones para dividir los datos
 NORTE = ['Arica y Parinacota', 'Antofagasta', 'Atacama',
@@ -111,16 +112,47 @@ for date in Dates:
             # if error do this
             pass
 
+
+
 #agregamos los indices de las regiones
 Contagios_por_dia.index = df_date["Region"].values[:16]
 # dividimos por la población para obtener la densidad poblacional en porcentage
 densidad_contagios_x_dia = Contagios_por_dia.div(R_population, axis=0).transpose()*100
 # Trasponemos los datos.
 Contagios_por_dia = Contagios_por_dia.transpose()
+densidad_contagios_x_dia.index = pd.to_datetime(densidad_contagios_x_dia.index)
+Contagios_q_dias = densidad_contagios_x_dia.resample('SM').sum()
 
-plot_timeSeries(densidad_contagios_x_dia, "Porcentage de la población contagiada", "Contagios por día")
+plot_timeSeries(Contagios_q_dias, "Porcentage de la población contagiada", "Contagios por día")
 plot_timeSeries(Contagios_por_dia, "Cantidad contagios", "Contagios por día")
 plot_fallecimientos()
+plt.close()
+
+# generamos un boxplot:
+fig, ax = plt.subplots()
+ax = Contagios_q_dias.boxplot()
+# ladeamos los valores en 45 grados
+plt.xticks(rotation=90)
+plt.show()
+plt.close()
+
+# covarianza
+corr = Contagios_q_dias.corr()
+# Generate a mask for the upper triangle
+mask = np.triu(np.ones_like(corr, dtype=bool))
+
+# Set up the matplotlib figure
+f, ax = plt.subplots(figsize=(11, 9))
+
+# Generate a custom diverging colormap
+cmap = sns.diverging_palette(230, 20, as_cmap=True)
+
+# Draw the heatmap with the mask and correct aspect ratio
+sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
+            square=True, linewidths=.5, cbar_kws={"shrink": .5})
+plt.show()
+plt.close()
+
 
 ###### vacunaciones ##########################################
 # obtenemos los datos de las vacunas
@@ -204,5 +236,4 @@ ax.set_ylabel('Cantidad de Transacciones bip!')
 ax.set_title("contagios y Transacciones bip en Marzo-Mayo  2020")
 ax.right_ax.set_ylabel('% población región metropolitana')
 plt.show()
-
 
