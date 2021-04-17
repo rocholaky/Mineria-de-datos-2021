@@ -77,7 +77,6 @@ def plot_contagios_nacionales():
     return R_population, Dates
 
 
-
 def get_densidad_contagios(R_population, Dates):
     # Procedemos a obtener los contagios por Región no incrementales:
     # generamos dataframe
