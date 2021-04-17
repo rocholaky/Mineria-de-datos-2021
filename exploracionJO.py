@@ -283,6 +283,93 @@ def get_movilidad_data_frames_por_comuna():
 
     return data_frames_por_region
 
+def get_estados_por_region():
+    """Entrega una lista de 17 DataFrames, el primero está vacío y los siguientes corresponden a la información por región indexada desde 1 a 16.
+    
+    """
+
+    # Sacamos el dataset
+    movilidad = utils.dataRetrieval.get_movilidad_por_comuna()
+
+    ## Estructuras de datos para la generación de las tablas
+
+    # Indica de qué region es una comuna 
+    # (string:string)
+    comuna_es_de_region = {}
+
+    # Indica qué comunas tiene cada región, empezamos cada región con una lista vacía
+    # (string:lista<string>)
+    comunas_en_regiones = {}
+    for x in nombres_regiones:
+        comunas_en_regiones[x] = []
+
+    
+    # Estas no importan en el futuro
+    nombres_comunas_aux = movilidad[0].nom_comuna.unique()
+
+    comuna_encontrada = [0] * len(nombres_comunas_aux)
+
+
+    # Nombre de las comunas
+    nombres_comunas = []
+    for x in nombres_comunas_aux:
+        nombres_comunas += [x]
+    nombres_comunas.sort()
+
+    # guarda indices asociados a comunas
+    INDEX_COMUNA = {}
+    for i in range(0, len(nombres_comunas)):
+        INDEX_COMUNA[nombres_comunas[i]] = i
+
+    columnas_inutiles_comunas = [
+        'comuna',
+        'fecha_termino',
+        'semana'
+    ]
+
+    comunas = movilidad[0].drop(columnas_inutiles_comunas, axis = 1)
+
+    aux = comunas.groupby(['fecha_inicio', 'nom_comuna']).sum()
+
+    comunas_data_por_region = [
+        [], [], [], [],
+        [], [], [], [],
+        [], [], [], [],
+        [], [], [], [],
+        []
+    ]
+    comunas_indice_de_region = {}
+
+    for index, row in aux.iterrows():
+        if (comuna_encontrada[INDEX_COMUNA[row.name[1]]] == 0):
+            region = NUMBER_TO_REGION[row.region]
+            comuna = row.name[1]
+            comuna_idx = INDEX_COMUNA[comuna]
+            comuna_encontrada[comuna_idx] = 1
+            comuna_es_de_region[comuna] = region
+            comunas_en_regiones[region] += [comuna]
+            comunas_indice_de_region[comuna] = len(comunas_en_regiones[region]) - 1
+    
+    last = ["2020-0-0"] * 16
+
+    for index, row in aux.iterrows():
+        region = NUMBER_TO_REGION[row.region]
+        comuna = row.name[1]
+        region_id = round(row.region)
+        if (row.name[0] != last[region_id - 1]):
+            comunas_data_por_region[region_id] += [[0]*(len(comunas_en_regiones[region]) + 1)]
+            comunas_data_por_region[region_id][-1][0] = row.name[0]
+            last[region_id - 1] = row.name[0]
+        indice = comunas_indice_de_region[comuna]
+        comunas_data_por_region[region_id][-1][1 + indice] = row.paso
+    data_frames_por_region = []
+    for i in range(16):
+        data_frames_por_region += [pd.DataFrame(comunas_data_por_region[i + 1], columns = ['Inicio'] + comunas_en_regiones[NUMBER_TO_REGION[i + 1]])]
+        data_frames_por_region[-1] = data_frames_por_region[-1].set_index('Inicio')
+        #print(NUMBER_TO_REGION[i + 1] + ": ---------------------------------------")
+        #print(data_frames_por_region[-1])
+
+    return data_frames_por_region
 
 
 #data_frames_por_region = get_movilidad_data_frames_por_comuna()
