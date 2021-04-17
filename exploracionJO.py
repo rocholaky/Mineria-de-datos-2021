@@ -106,6 +106,8 @@ def get_transporte_aereo():
     # Obtener nuevas tablas
     last = ["2020-0-0", "2020-0-0", "2020-0-0"]
     for index, row in viajes_origen.iterrows():
+        fecha = row.name[0]
+
         if (REGION_INDEX[row.name[1]] < 6):
             if (row.name[0] != last[0]):
                 new_data_norte_origen += [[0]*(len(NORTE) + 1)]
@@ -148,21 +150,34 @@ def get_transporte_aereo():
     
     # Convertir a DataFrame
     data_norte_origen = pd.DataFrame(new_data_norte_origen, columns = ['Inicio'] + NORTE)
+    data_norte_origen = data_norte_origen.set_index('Inicio')
+    data_norte_origen.index = pd.to_datetime(data_norte_origen.index)
+    data_norte_origen = data_norte_origen.resample('W').sum()
+    
     data_centro_origen = pd.DataFrame(new_data_centro_origen, columns = ['Inicio'] + CENTRO)
+    data_centro_origen = data_centro_origen.set_index('Inicio')
+    data_centro_origen.index = pd.to_datetime(data_centro_origen.index)
+    data_centro_origen = data_centro_origen.resample('W').sum()
+
     data_sur_origen = pd.DataFrame(new_data_sur_origen, columns = ['Inicio'] + SUR)
+    data_sur_origen = data_sur_origen.set_index('Inicio')
+    data_sur_origen.index = pd.to_datetime(data_sur_origen.index)
+    data_sur_origen = data_sur_origen.resample('W').sum()
 
     data_norte_destino = pd.DataFrame(new_data_norte_destino, columns = ['Inicio'] + NORTE)
-    data_centro_destino = pd.DataFrame(new_data_centro_destino, columns = ['Inicio'] + CENTRO)
-    data_sur_destino = pd.DataFrame(new_data_sur_destino, columns = ['Inicio'] + SUR)
-
-    # Dejar las fechas como indexación
-    data_norte_origen = data_norte_origen.set_index('Inicio')
-    data_centro_origen = data_centro_origen.set_index('Inicio')
-    data_sur_origen = data_sur_origen.set_index('Inicio')
-
     data_norte_destino = data_norte_destino.set_index('Inicio')
+    data_norte_destino.index = pd.to_datetime(data_norte_destino.index)
+    data_norte_destino = data_norte_destino.resample('W').sum()
+
+    data_centro_destino = pd.DataFrame(new_data_centro_destino, columns = ['Inicio'] + CENTRO)
     data_centro_destino = data_centro_destino.set_index('Inicio')
+    data_centro_destino.index = pd.to_datetime(data_centro_destino.index)
+    data_centro_destino = data_centro_destino.resample('W').sum()
+
+    data_sur_destino = pd.DataFrame(new_data_sur_destino, columns = ['Inicio'] + SUR)
     data_sur_destino = data_sur_destino.set_index('Inicio')
+    data_sur_destino.index = pd.to_datetime(data_sur_destino.index)
+    data_sur_destino = data_sur_destino.resample('W').sum()
 
     # Retornar lo pedido
     return [
@@ -375,3 +390,23 @@ def get_estados_por_region():
 #data_frames_por_region = get_movilidad_data_frames_por_comuna()
 
 #plot_df(data_frames_por_region[0], "movilidad en " + NUMBER_TO_REGION[1], "Movilidad", legend = False)
+
+
+datos = get_transporte_aereo()
+
+
+datos1 = datos[0]
+
+datos1.index = pd.to_datetime(datos1.index)
+
+datos1 = datos1.resample('W').sum()
+
+
+#contagios_x_dia.index = pd.to_datetime(contagios_x_dia.index)
+#contagios_x_semana = contagios_x_dia.resample('W').sum()
+print(
+    datos1
+)
+
+plot_df(datos1, "movilidad en " + NUMBER_TO_REGION[1], "Movilidad", legend = False)
+
