@@ -6,16 +6,15 @@ import matplotlib.dates as mdates
 from utils.util_plot import plot_timeSeries, barplot_timeSeries
 import matplotlib
 import seaborn as sns
-
+import exploracionJO as JO
 ### regiones para dividir los datos
-NORTE = ['Arica y Parinacota', 'Antofagasta', 'Atacama',
+NORTE = ['Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama',
                 'Coquimbo', 'Valparaíso']
 
-CENTRO = ['Ñuble', 'O’Higgins', 'Maule', 'Metropolitana']
+CENTRO = ['Metropolitana', 'O’Higgins', 'Maule', 'Ñuble']
 
-SUR = ['Aysén', 'Biobío', 'Los Lagos', 'Los Ríos', 'Aysén', 'Magallanes']
-
-
+SUR = ['Biobío', 'Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes']
+regiones = NORTE+ CENTRO + SUR
 
 def plot_fallecimientos():
     # obtenemos el dataframe de fallecimientos:
@@ -75,6 +74,7 @@ def plot_contagios_nacionales():
     plot_timeSeries(connected_regions, "Densidad Contagiados proporcional a la población",
                     "Cantidad de Contagios por Región Acumulado")
     return R_population, Dates
+
 
 
 def get_densidad_contagios(R_population, Dates):
@@ -143,7 +143,7 @@ def plot_densidad_contagiados(densidad_contagios_x_dia):
     plot_timeSeries(densidad_contagios_x_dia, "Cantidad contagios", "Contagios por día normalizados", fig_size=(10, 10))
     plt.close()
 
-def plot_boxplot_contagios(Contagios_q_dias):
+def plot_correlacion_contagios(Contagios_q_dias):
     # covarianza
     corr = Contagios_q_dias.corr()
     # Generate a mask for the upper triangle
@@ -161,12 +161,15 @@ def plot_boxplot_contagios(Contagios_q_dias):
     plt.show()
     plt.close()
 
-def plot_correlacion_contagios(Contagios_q_dias):
+def plot_boxplot_contagios(Contagios_q_dias):
     # generamos un boxplot:
     fig, ax = plt.subplots(figsize=(10, 10))
     ax = Contagios_q_dias.boxplot()
     # ladeamos los valores en 45 grados
     plt.xticks(rotation=90)
+    plt.xlabel('Regiones')
+    plt.ylabel('densidad de contagios por población')
+    plt.title('Boxplot densidad de contagios agrupado por 15 días en pandemia')
     plt.show()
     plt.close()
 
@@ -241,4 +244,41 @@ def plot_transactions(R_population, Dates):
     ax.set_title("contagios y Transacciones bip en Marzo-Mayo  2020")
     ax.right_ax.set_ylabel('% población región metropolitana')
     plt.show()
+
+if  __name__ == "__main__" :
+    R_population, Dates = plot_contagios_nacionales()
+    contagios_x_dia, contagios_q_dias, densidad_contagios = get_densidad_contagios(R_population, Dates)
+    contagios_x_dia.index = pd.to_datetime(contagios_x_dia.index)
+    contagios_x_semana = contagios_x_dia.resample('W', loffset='1d').sum()
+
+    densidad_vacaciones = contagios_q_dias['2020-12-01':'2021-02-27']
+    plot_boxplot_contagios(densidad_vacaciones)
+    REGION_TO_POS = {
+        'Tarapacá': 0,
+        'Antofagasta': 0,
+        'Atacama': 0,
+        'Coquimbo': 0,
+        'Valparaíso': 0,
+        'O’Higgins': 1,
+        'Maule': 1,
+        'Biobío': 2,
+        'Araucanía': 2,
+        'Los Lagos': 2,
+        'Aysén': 2,
+        'Magallanes': 2,
+        'Metropolitana': 1,
+        'Los Ríos': 2,
+        'Arica y Parinacota': 0,
+        'Ñuble': 1
+    }
+    lista_vuelos = JO.get_transporte_aereo()
+    for region in regiones:
+        value = REGION_TO_POS[region]
+        vuelos_RM = lista_vuelos[value][region]
+        contagios_aviones = contagios_x_semana.join(vuelos_RM, lsuffix='_aviones')
+        contagios_aviones = contagios_aviones[[region, region+'_aviones']].dropna()
+        contagios_vacaciones = contagios_aviones['2020-12-01':'2021-02-27']
+        print(contagios_vacaciones.corr())
+
+
 
