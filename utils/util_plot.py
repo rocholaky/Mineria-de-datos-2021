@@ -99,7 +99,7 @@ def plot_df(df, title, ylabel, xlabel = 'Fecha',  size = (20,9), legend = True):
 def box_plot_df(df, title, xlabel, ylabel= 'Cantidad',size = (20,10)):
     '''Grafica boxplot serie de tiempo de la calidad del aire'''
     fig, ax = plt.subplots(figsize=size)
-    fig.suptitle(title, fontsize=14, fontweight='bold')
+    #fig.suptitle(title, fontsize=14, fontweight='bold')
     ax = df.boxplot()
     # ladeamos los valores en 45 grados
     plt.xticks(rotation=90)
