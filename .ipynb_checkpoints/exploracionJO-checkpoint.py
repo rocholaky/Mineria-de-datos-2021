@@ -106,6 +106,8 @@ def get_transporte_aereo():
     # Obtener nuevas tablas
     last = ["2020-0-0", "2020-0-0", "2020-0-0"]
     for index, row in viajes_origen.iterrows():
+        fecha = row.name[0]
+
         if (REGION_INDEX[row.name[1]] < 6):
             if (row.name[0] != last[0]):
                 new_data_norte_origen += [[0]*(len(NORTE) + 1)]
@@ -148,21 +150,34 @@ def get_transporte_aereo():
     
     # Convertir a DataFrame
     data_norte_origen = pd.DataFrame(new_data_norte_origen, columns = ['Inicio'] + NORTE)
+    data_norte_origen = data_norte_origen.set_index('Inicio')
+    data_norte_origen.index = pd.to_datetime(data_norte_origen.index)
+    data_norte_origen = data_norte_origen.resample('W').sum()
+    
     data_centro_origen = pd.DataFrame(new_data_centro_origen, columns = ['Inicio'] + CENTRO)
+    data_centro_origen = data_centro_origen.set_index('Inicio')
+    data_centro_origen.index = pd.to_datetime(data_centro_origen.index)
+    data_centro_origen = data_centro_origen.resample('W').sum()
+
     data_sur_origen = pd.DataFrame(new_data_sur_origen, columns = ['Inicio'] + SUR)
+    data_sur_origen = data_sur_origen.set_index('Inicio')
+    data_sur_origen.index = pd.to_datetime(data_sur_origen.index)
+    data_sur_origen = data_sur_origen.resample('W').sum()
 
     data_norte_destino = pd.DataFrame(new_data_norte_destino, columns = ['Inicio'] + NORTE)
-    data_centro_destino = pd.DataFrame(new_data_centro_destino, columns = ['Inicio'] + CENTRO)
-    data_sur_destino = pd.DataFrame(new_data_sur_destino, columns = ['Inicio'] + SUR)
-
-    # Dejar las fechas como indexación
-    data_norte_origen = data_norte_origen.set_index('Inicio')
-    data_centro_origen = data_centro_origen.set_index('Inicio')
-    data_sur_origen = data_sur_origen.set_index('Inicio')
-
     data_norte_destino = data_norte_destino.set_index('Inicio')
+    data_norte_destino.index = pd.to_datetime(data_norte_destino.index)
+    data_norte_destino = data_norte_destino.resample('W').sum()
+
+    data_centro_destino = pd.DataFrame(new_data_centro_destino, columns = ['Inicio'] + CENTRO)
     data_centro_destino = data_centro_destino.set_index('Inicio')
+    data_centro_destino.index = pd.to_datetime(data_centro_destino.index)
+    data_centro_destino = data_centro_destino.resample('W').sum()
+
+    data_sur_destino = pd.DataFrame(new_data_sur_destino, columns = ['Inicio'] + SUR)
     data_sur_destino = data_sur_destino.set_index('Inicio')
+    data_sur_destino.index = pd.to_datetime(data_sur_destino.index)
+    data_sur_destino = data_sur_destino.resample('W').sum()
 
     # Retornar lo pedido
     return [
@@ -283,8 +298,115 @@ def get_movilidad_data_frames_por_comuna():
 
     return data_frames_por_region
 
+def get_estados_por_region():
+    """Entrega una lista de 17 DataFrames, el primero está vacío y los siguientes corresponden a la información por región indexada desde 1 a 16.
+    
+    """
+
+    # Sacamos el dataset
+    movilidad = utils.dataRetrieval.get_movilidad_por_comuna()
+
+    ## Estructuras de datos para la generación de las tablas
+
+    # Indica de qué region es una comuna 
+    # (string:string)
+    comuna_es_de_region = {}
+
+    # Indica qué comunas tiene cada región, empezamos cada región con una lista vacía
+    # (string:lista<string>)
+    comunas_en_regiones = {}
+    for x in nombres_regiones:
+        comunas_en_regiones[x] = []
+
+    
+    # Estas no importan en el futuro
+    nombres_comunas_aux = movilidad[0].nom_comuna.unique()
+
+    comuna_encontrada = [0] * len(nombres_comunas_aux)
+
+
+    # Nombre de las comunas
+    nombres_comunas = []
+    for x in nombres_comunas_aux:
+        nombres_comunas += [x]
+    nombres_comunas.sort()
+
+    # guarda indices asociados a comunas
+    INDEX_COMUNA = {}
+    for i in range(0, len(nombres_comunas)):
+        INDEX_COMUNA[nombres_comunas[i]] = i
+
+    columnas_inutiles_comunas = [
+        'comuna',
+        'fecha_termino',
+        'semana'
+    ]
+
+    comunas = movilidad[0].drop(columnas_inutiles_comunas, axis = 1)
+
+    aux = comunas.groupby(['fecha_inicio', 'nom_comuna']).sum()
+
+    comunas_data_por_region = [
+        [], [], [], [],
+        [], [], [], [],
+        [], [], [], [],
+        [], [], [], [],
+        []
+    ]
+    comunas_indice_de_region = {}
+
+    for index, row in aux.iterrows():
+        if (comuna_encontrada[INDEX_COMUNA[row.name[1]]] == 0):
+            region = NUMBER_TO_REGION[row.region]
+            comuna = row.name[1]
+            comuna_idx = INDEX_COMUNA[comuna]
+            comuna_encontrada[comuna_idx] = 1
+            comuna_es_de_region[comuna] = region
+            comunas_en_regiones[region] += [comuna]
+            comunas_indice_de_region[comuna] = len(comunas_en_regiones[region]) - 1
+    
+    last = ["2020-0-0"] * 16
+
+    for index, row in aux.iterrows():
+        region = NUMBER_TO_REGION[row.region]
+        comuna = row.name[1]
+        region_id = round(int(row.region))
+        if (row.name[0] != last[region_id - 1]):
+            comunas_data_por_region[region_id] += [[0]*(len(comunas_en_regiones[region]) + 1)]
+            comunas_data_por_region[region_id][-1][0] = row.name[0]
+            last[region_id - 1] = row.name[0]
+        indice = comunas_indice_de_region[comuna]
+        comunas_data_por_region[region_id][-1][1 + indice] = row.paso
+    data_frames_por_region = []
+    for i in range(16):
+        data_frames_por_region += [pd.DataFrame(comunas_data_por_region[i + 1], columns = ['Inicio'] + comunas_en_regiones[NUMBER_TO_REGION[i + 1]])]
+        data_frames_por_region[-1] = data_frames_por_region[-1].set_index('Inicio')
+        #print(NUMBER_TO_REGION[i + 1] + ": ---------------------------------------")
+        #print(data_frames_por_region[-1])
+
+    return data_frames_por_region
 
 
 #data_frames_por_region = get_movilidad_data_frames_por_comuna()
 
 #plot_df(data_frames_por_region[0], "movilidad en " + NUMBER_TO_REGION[1], "Movilidad", legend = False)
+
+
+datos = get_transporte_aereo()
+
+
+datos1 = datos[0]
+
+datos1.index = pd.to_datetime(datos1.index)
+
+datos1 = datos1.resample('W').sum()
+
+
+#contagios_x_dia.index = pd.to_datetime(contagios_x_dia.index)
+#contagios_x_semana = contagios_x_dia.resample('W').sum()
+print(
+    datos1
+)
+
+plot_df(datos1, "movilidad en " + NUMBER_TO_REGION[1], "Movilidad", legend = False)
+
