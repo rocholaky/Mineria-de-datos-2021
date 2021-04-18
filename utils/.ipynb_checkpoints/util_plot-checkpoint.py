@@ -7,7 +7,7 @@ import matplotlib.ticker as ticker
 import seaborn as sns
 # fución que plotea series de tiempo, es necesario que la
 # serie de tiempo esté tenga indices de las fechas.
-def plot_timeSeries(ts, ylabel, title,fig_size=(7, 6)):
+def plot_timeSeries(ts, ylabel, title, fig_size=(7, 6)):
     # volvemos este valor datetime
     ts.index = pd.to_datetime(ts.index)
     # generamos los plots
@@ -96,18 +96,21 @@ def plot_df(df, title, ylabel, xlabel = 'Fecha',  size = (20,9), legend = True):
     plt.close()
     return
 
-def box_plot_df(df, title, size = (20,10)):
+def box_plot_df(df, title, xlabel, ylabel= 'Cantidad',size = (20,10)):
     '''Grafica boxplot serie de tiempo de la calidad del aire'''
     fig, ax = plt.subplots(figsize=size)
-    fig.suptitle(title, fontsize=14, fontweight='bold')
+    #fig.suptitle(title, fontsize=14, fontweight='bold')
     ax = df.boxplot()
     # ladeamos los valores en 45 grados
     plt.xticks(rotation=90)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     plt.show()
     plt.close()
     return
 
-def corr_plot_df(df):
+def corr_plot_df(df, title):
     # covarianza
     corr = df.corr()
     # Generate a mask for the upper triangle
@@ -122,6 +125,7 @@ def corr_plot_df(df):
     # Draw the heatmap with the mask and correct aspect ratio
     sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
                 square=True, linewidths=.5, cbar_kws={"shrink": .5})
+    plt.title(title)
     plt.show()
     plt.close()
     return

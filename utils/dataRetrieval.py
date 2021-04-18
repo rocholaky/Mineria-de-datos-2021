@@ -133,3 +133,90 @@ def get_movilidad_por_comuna():
         "https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto82/ISCI_weekends.csv"
     )
     return [values_weeks, values_weekends]
+
+#Exploracion RC
+# Obtención product6
+def get_product6():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto6/bulk/data.csv")
+    return values
+
+# Obtención product9_pacientes_UCI_por_grupo_etario
+def get_product9_pacientes_UCI_por_grupo_etario():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto9/HospitalizadosUCIEtario.csv")
+    return values
+
+# Obtención product9_pacientes_UCI_por_grupo_etario_traspuesto
+def get_product9_pacientes_UCI_por_grupo_etario_traspuesto():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto9/HospitalizadosUCIEtario_T.csv")
+    return values
+
+# Obtención product10_fallecidos_por_grupo_etario
+def get_product10_fallecidos_por_grupo_etario():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto10/FallecidosEtario.csv")
+    return values
+
+# Obtención product10_fallecidos_por_grupo_etario_traspuesto
+def get_product10_fallecidos_por_grupo_etario_traspuesto():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto10/FallecidosEtario_T.csv")
+    return values
+
+# Obtención product13_casos_nuevos_acumulativos
+def get_product13_casos_nuevos_acumulativos():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto13/CasosNuevosCumulativo.csv")
+    return values
+
+# Obtención product13_casos_nuevos_acumulativos_traspuesto
+def get_product13_casos_nuevos_acumulativos_traspuesto():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto13/CasosNuevosCumulativo_T.csv")
+    return values
+
+# Obtención product14_fallecidos_acumulativos
+def get_product14():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto14/FallecidosCumulativo.csv")
+    return values
+
+# Obtención product14_fallecidos_acumulativos_traspuesto
+def get_product14_fallecidos_acumulativos_traspuesto():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto14/FallecidosCumulativo_T.csv")
+    return values
+
+# Obtención product16_casos_genero_etario
+def get_product16_casos_genero_etario():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto16/CasosGeneroEtario.csv")
+    return values
+
+# Obtención product16_casos_genero_etario_traspuesto
+def get_product16_casos_genero_etario_traspuesto():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto16/CasosGeneroEtario_T.csv")
+    return values
+
+# Obtención product16_casos_genero_etario_etapa_clinica
+def get_product16_casos_genero_etario_etapa_clinica():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto16/CasosGeneroEtarioEtapaClinica.csv")
+    return values
+
+
+# Obtención product16_casos_genero_etario_etapa_clinica_traspuesto
+def get_product16_casos_genero_etario_etapa_clinica_traspuesto():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto16/CasosGeneroEtarioEtapaClinica_t.csv")
+    return values
+
+
+# Obtención product17
+def get_product17():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto17/PCREstablecimiento.csv")
+    return values
+
+def get_product17_traspuesto():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto17/PCREstablecimiento_T.csv")
+    return values
+
+# Obtención product20_camas_criticas_nivel_nacional
+def get_product20_camas_criticas_nivel_nacional():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto20/NumeroVentiladores.csv")
+    return values
+
+# Obtención product20_camas_criticas_nivel_nacional_traspuesto
+def get_product20_camas_criticas_nivel_nacional_traspuesto():
+    values = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto20/NumeroVentiladores_T.csv")
+    return values

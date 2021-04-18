@@ -390,7 +390,7 @@ def get_estados_por_region():
     for index, row in aux.iterrows():
         region = NUMBER_TO_REGION[row.region]
         comuna = row.name[1]
-        region_id = round(row.region)
+        region_id = round(int(row.region))
         if (row.name[0] != last[region_id - 1]):
             comunas_data_por_region[region_id] += [[0]*(len(comunas_en_regiones[region]) + 1)]
             comunas_data_por_region[region_id][-1][0] = row.name[0]
