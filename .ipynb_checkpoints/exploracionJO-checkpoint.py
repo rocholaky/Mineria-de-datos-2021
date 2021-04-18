@@ -26,6 +26,26 @@ for x in nombres_regiones:
     REGION_INDEX[x] = val
     val += 1
 
+REGION_TO_POS = {
+    'Tarapacá': 0,
+    'Antofagasta': 0,
+    'Atacama': 0,
+    'Coquimbo': 0,
+    'Valparaíso': 0,
+    'O’Higgins': 1,
+    'Maule': 1,
+    'Biobío': 2,
+    'Araucanía': 2,
+    'Los Lagos': 2,
+    'Aysén': 2,
+    'Magallanes': 2,
+    'Metropolitana': 1,
+    'Los Ríos': 2,
+    'Arica y Parinacota': 0,
+    'Ñuble': 1
+}
+
+
 REGION_TO_NUMBER = {
     'Tarapacá': 1,
     'Antofagasta': 2,
@@ -391,22 +411,4 @@ def get_estados_por_region():
 
 #plot_df(data_frames_por_region[0], "movilidad en " + NUMBER_TO_REGION[1], "Movilidad", legend = False)
 
-
-datos = get_transporte_aereo()
-
-
-datos1 = datos[0]
-
-datos1.index = pd.to_datetime(datos1.index)
-
-datos1 = datos1.resample('W').sum()
-
-
-#contagios_x_dia.index = pd.to_datetime(contagios_x_dia.index)
-#contagios_x_semana = contagios_x_dia.resample('W').sum()
-print(
-    datos1
-)
-
-plot_df(datos1, "movilidad en " + NUMBER_TO_REGION[1], "Movilidad", legend = False)
 
