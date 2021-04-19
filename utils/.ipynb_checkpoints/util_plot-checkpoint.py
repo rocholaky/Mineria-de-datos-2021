@@ -129,3 +129,25 @@ def corr_plot_df(df, title):
     plt.show()
     plt.close()
     return
+
+
+def plot_df2(df, title, ylabel, xlabel = 'Fecha',  size = (20,9), legend = True):
+    '''Grafica fase de comuna en funcion del tiempo por semana'''
+    fig, ax = plt.subplots(figsize=size)
+    ax.set_prop_cycle('color', plt.cm.Spectral(np.linspace(0, 1, len(df.columns))))
+        # en el ax ponemos el plot generado con pandas
+    ax = df.plot.bar(ax=ax)
+    ax.set_facecolor('#808080')
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.grid(True)
+    
+    if legend:
+        legend  = plt.legend(bbox_to_anchor=(1.01, 0.97), loc='upper left')
+        legend.get_frame().set_facecolor('#808080')
+        
+    plt.tight_layout()
+    plt.show()
+    plt.close()
+    return
