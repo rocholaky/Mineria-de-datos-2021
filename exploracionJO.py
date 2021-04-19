@@ -90,6 +90,7 @@ def get_transporte_aereo():
 
     """
     viajes = utils.dataRetrieval.get_transporte_aereo()
+
     # Columnas despreciables
     columnas_inutiles = [
         "Cod_region_destino",
@@ -116,6 +117,8 @@ def get_transporte_aereo():
         "Region_destino"
     ]).sum()
 
+
+    # Contendrán los datos de cada destino/rogien
     new_data_norte_origen = []
     new_data_centro_origen = []
     new_data_sur_origen = []
@@ -123,7 +126,10 @@ def get_transporte_aereo():
     new_data_centro_destino = []
     new_data_sur_destino = []
 
+
     # Obtener nuevas tablas
+    # Deja las fechas en primera columna y las regiones en las columnas restantes
+    # [i, j] es región j en fecha i. Para origenes.
     last = ["2020-0-0", "2020-0-0", "2020-0-0"]
     for index, row in viajes_origen.iterrows():
         fecha = row.name[0]
@@ -147,6 +153,10 @@ def get_transporte_aereo():
                 last[2] = row.name[0]
             new_data_sur_origen[-1][1 + REGION_INDEX[row.name[1]] - 10] += row.Pasajeros
 
+
+    # Obtener nuevas tablas
+    # Deja las fechas en primera columna y las regiones en las columnas restantes
+    # [i, j] es región j en fecha i. Para destinos.
     last = ["2020-0-0", "2020-0-0", "2020-0-0"]
     for index, row in viajes_destino.iterrows():
         if (REGION_INDEX[row.name[1]] < 6):
@@ -209,27 +219,6 @@ def get_transporte_aereo():
         data_sur_destino
     ]
 
-def plot_df(df, title, ylabel, xlabel = 'Fecha',  size = (20,9), legend = True):
-    '''Grafica serie de tiempo de la calidad del aire'''
-    fig, ax = plt.subplots(figsize = size)
-    ax.set_prop_cycle('color', plt.cm.Spectral(np.linspace(0, 1, len(df.columns))))
-        # en el ax ponemos el plot generado con pandas
-    ax = df.plot(ax = ax)
-    ax.set_facecolor('#808080')
-    ax.set_title(title)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.grid(True)
-    
-    if legend:
-        legend  = plt.legend(bbox_to_anchor=(1.01, 0.97), loc='upper left')
-        legend.get_frame().set_facecolor('#808080')
-        
-    plt.tight_layout()
-    plt.show()
-    plt.close()
-    return
-
 def get_movilidad_data_frames_por_comuna():
     """Entrega una lista de 17 DataFrames, el primero está vacío y los siguientes corresponden a la información por región indexada desde 1 a 16.
     
@@ -278,6 +267,8 @@ def get_movilidad_data_frames_por_comuna():
 
     aux = comunas.groupby(['fecha_inicio', 'nom_comuna']).sum()
 
+
+    # Lista de datos por región.
     comunas_data_por_region = [
         [], [], [], [],
         [], [], [], [],
@@ -285,6 +276,8 @@ def get_movilidad_data_frames_por_comuna():
         [], [], [], [],
         []
     ]
+
+    # Guarda la posición en la que está una comuna en la lista de su región respectiva.
     comunas_indice_de_region = {}
 
     for index, row in aux.iterrows():
@@ -297,6 +290,8 @@ def get_movilidad_data_frames_por_comuna():
             comunas_en_regiones[region] += [comuna]
             comunas_indice_de_region[comuna] = len(comunas_en_regiones[region]) - 1
     
+
+    # Guardar los datos de movilidad, [i, j] es fecha i, comuna j
     last = ["2020-0-0"] * 16
 
     for index, row in aux.iterrows():
@@ -368,6 +363,7 @@ def get_estados_por_region():
 
     aux = comunas.groupby(['fecha_inicio', 'nom_comuna']).sum()
 
+    # Lista de datos por región.
     comunas_data_por_region = [
         [], [], [], [],
         [], [], [], [],
@@ -375,6 +371,8 @@ def get_estados_por_region():
         [], [], [], [],
         []
     ]
+
+    # Guarda la posición en la que está una comuna en la lista de su región respectiva.
     comunas_indice_de_region = {}
 
     for index, row in aux.iterrows():
@@ -387,6 +385,7 @@ def get_estados_por_region():
             comunas_en_regiones[region] += [comuna]
             comunas_indice_de_region[comuna] = len(comunas_en_regiones[region]) - 1
     
+    # Guardar los datos de fases en comunas, [i, j] es fecha i, comuna j
     last = ["2020-0-0"] * 16
 
     for index, row in aux.iterrows():
