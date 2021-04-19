@@ -305,9 +305,10 @@ def get_movilidad_data_frames_por_comuna():
         region_id = int(round(row.region))
         if (row.region - region_id > 0.5):
             region_id += 1
-        comunas_data_por_region[region_id] += [[0]*(len(comunas_en_regiones[region]) + 1)]
-        comunas_data_por_region[region_id][-1][0] = row.name[0]
-        last[region_id - 1] = row.name[0]
+        if (last[region_id - 1] != row.name[0]):
+            comunas_data_por_region[region_id] += [[0]*(len(comunas_en_regiones[region]) + 1)]
+            comunas_data_por_region[region_id][-1][0] = row.name[0]
+            last[region_id - 1] = row.name[0]
         indice = comunas_indice_de_region[comuna]
         comunas_data_por_region[region_id][-1][1 + indice] = row.var_salidas
     data_frames_por_region = []
@@ -391,18 +392,18 @@ def get_estados_por_region():
     for index, row in aux.iterrows():
         region = NUMBER_TO_REGION[row.region]
         comuna = row.name[1]
-        region_id = int(round(row.region))
-        if (row.region - region_id > 0.5):
-            region_id += 1
-        comunas_data_por_region[region_id] += [[0]*(len(comunas_en_regiones[region]) + 1)]
-        comunas_data_por_region[region_id][-1][0] = row.name[0]
-        last[region_id - 1] = row.name[0]
+        region_id = round(int(row.region))
+        if (row.name[0] != last[region_id - 1]):
+            comunas_data_por_region[region_id] += [[0]*(len(comunas_en_regiones[region]) + 1)]
+            comunas_data_por_region[region_id][-1][0] = row.name[0]
+            last[region_id - 1] = row.name[0]
         indice = comunas_indice_de_region[comuna]
         comunas_data_por_region[region_id][-1][1 + indice] = row.paso
     data_frames_por_region = []
     for i in range(16):
         data_frames_por_region += [pd.DataFrame(comunas_data_por_region[i + 1], columns = ['Inicio'] + comunas_en_regiones[NUMBER_TO_REGION[i + 1]])]
         data_frames_por_region[-1] = data_frames_por_region[-1].set_index('Inicio')
+        data_frames_por_region[-1] = data_frames_por_region[-1].groupby(['Inicio']).sum()
         #print(NUMBER_TO_REGION[i + 1] + ": ---------------------------------------")
         #print(data_frames_por_region[-1])
 
