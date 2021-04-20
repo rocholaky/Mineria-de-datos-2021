@@ -145,7 +145,7 @@ def plot_densidad_contagiados(densidad_contagios_x_dia):
     plot_timeSeries(densidad_contagios_x_dia, "Cantidad contagios", "Contagios por día normalizados", fig_size=(10, 10))
     plt.close()
 
-def plot_correlacion_contagios(Contagios_q_dias):
+def plot_correlacion_contagios(Contagios_q_dias, use_mask=True):
     # covarianza
     corr = Contagios_q_dias.corr()
     # Generate a mask for the upper triangle
@@ -158,8 +158,11 @@ def plot_correlacion_contagios(Contagios_q_dias):
     cmap = sns.diverging_palette(230, 20, as_cmap=True)
 
     # Draw the heatmap with the mask and correct aspect ratio
-    sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
-                square=True, linewidths=.5, cbar_kws={"shrink": 1})
+    if use_mask:
+        sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
+                    square=True, linewidths=.5, cbar_kws={"shrink": 1})
+    else:
+        sns.heatmap(corr, cmap=cmap, vmin=-1, vmax=1, annot=True)
     plt.show()
     plt.close()
 
@@ -284,3 +287,36 @@ if  __name__ == "__main__" :
 
 
 
+def plot_correlacion_verano_covid(Region, R_population, Dates):
+        contagios_x_dia, contagios_q_dias, densidad_contagios = get_densidad_contagios(R_population, Dates)
+        contagios_x_dia.index = pd.to_datetime(contagios_x_dia.index)
+        contagios_x_semana = contagios_x_dia.resample('W').sum()
+        contagios_x_semana.index = contagios_x_semana.index
+
+        densidad_vacaciones = contagios_q_dias['2020-12-01':'2021-02-27']
+        REGION_TO_POS = {
+            'Tarapacá': 0,
+            'Antofagasta': 0,
+            'Atacama': 0,
+            'Coquimbo': 0,
+            'Valparaíso': 0,
+            'O’Higgins': 1,
+            'Maule': 1,
+            'Biobío': 2,
+            'Araucanía': 2,
+            'Los Lagos': 2,
+            'Aysén': 2,
+            'Magallanes': 2,
+            'Metropolitana': 1,
+            'Los Ríos': 2,
+            'Arica y Parinacota': 0,
+            'Ñuble': 1
+        }
+        lista_vuelos = JO.get_transporte_aereo()
+        value = REGION_TO_POS[Region]
+        vuelos_RM = lista_vuelos[value][Region]
+        contagios_aviones = contagios_x_semana.join(vuelos_RM, lsuffix='_aviones')
+        contagios_aviones = contagios_aviones[[Region, Region+'_aviones']].dropna()
+        contagios_vacaciones = contagios_aviones['2020-12-01':'2021-02-27']
+        plot_correlacion_contagios(contagios_vacaciones, False)
+        return
