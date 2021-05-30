@@ -408,9 +408,19 @@ def get_estados_por_region():
 
     return data_frames_por_region
 
+def getMovilidadDeComunasDeRegion(r, start = "2020-12-01", end = "2021-03-30"):
 
-#data_frames_por_region = get_movilidad_data_frames_por_comuna()
+    data_por_region = get_movilidad_data_frames_por_comuna()
+    df = data_por_region[r - 1]
 
-#plot_df(data_frames_por_region[0], "movilidad en " + NUMBER_TO_REGION[1], "Movilidad", legend = False)
+    df.index = pd.to_datetime(list(df.index.values))
+    df = df[(df.index >= start) & (df.index <= end)].transpose()
+    
+    meanTable = pd.DataFrame(df.mean(axis = 1))
+    stdTable = pd.DataFrame(df.std(axis = 1))
+    meanTable.rename(columns = {0 : 'mean'}, inplace = True)
+    stdTable.rename(columns = {0 : 'std'}, inplace = True)
 
+    df = meanTable.join(stdTable)
+    return df
 
