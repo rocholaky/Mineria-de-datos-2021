@@ -7,4 +7,5 @@ def get_clases():
     data['class'] = np.where(data['Casos nuevos con sintomas'] < data['Casos nuevos con sintomas'].shift(-1), 1, 0)
     data = data['class']
     data.drop(data.tail(1).index, inplace=True)
+    data = pd.DataFrame(data)
     return data
