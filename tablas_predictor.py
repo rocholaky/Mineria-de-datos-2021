@@ -14,4 +14,4 @@ print("nombres de tablas: " + str(nombres_tablas))
 
 total = activos.join(Vacunas).join(PCR).join(asintomaticos)
 
-print("el DataFrame es el total")
+print("total es el DataFrame que contiene todo (menos las clases)")
