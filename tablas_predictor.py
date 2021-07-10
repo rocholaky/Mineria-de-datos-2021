@@ -3,6 +3,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC  # support vector machine classifier
 from sklearn.metrics import f1_score, recall_score, precision_score,average_precision_score
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 from exploracionSG import *
 from exploracionJO import *
 from h3nc import *
@@ -40,7 +41,7 @@ def run_classifier(clf, X, y, num_tests=100):
                                                     average='micro'))
         metrics['precision'].append(precision_score(y_test, predictions, 
                                                     average='micro'))
-    
+    print(classification_report(y_test, predictions))
     return metrics
 
 X = total.drop(['class'], axis=1).values
