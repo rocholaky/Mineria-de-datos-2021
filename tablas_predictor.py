@@ -11,3 +11,7 @@ asintomaticos = get_asintomaticos_diarios_nacional()
 nombres_tablas = ["clases", "activos", "Vacunas", "PCR", "asintomaticos"]
 
 print("nombres de tablas: " + str(nombres_tablas))
+
+total = activos.join(Vacunas).join(PCR).join(asintomaticos)
+
+print("total es el DataFrame que contiene todo (menos las clases)")
