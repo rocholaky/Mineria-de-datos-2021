@@ -470,4 +470,5 @@ def get_asintomaticos_diarios_nacional():
     asintomaticos = asintomaticos.transpose()
     columns_to_drop = [region for region in asintomaticos.columns if region != "Total"]
     asintomaticos = asintomaticos.drop(columns = columns_to_drop)
+    asintomaticos.index = pd.to_datetime(asintomaticos.index)
     return asintomaticos
