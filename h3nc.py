@@ -8,4 +8,5 @@ def get_clases():
     data = data['class']
     data.drop(data.tail(1).index, inplace=True)
     data = pd.DataFrame(data)
+    data.index = pd.to_datetime(data.index)
     return data
