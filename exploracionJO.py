@@ -424,3 +424,51 @@ def getMovilidadDeComunasDeRegion(r, start = "2020-12-01", end = "2021-03-30"):
     df = meanTable.join(stdTable)
     return df
 
+def get_activos_diarios_nacional():
+    activos = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto19/CasosActivosPorComuna.csv", delimiter=',')
+    activos = activos[activos["Comuna"] == "Total"]
+    activos  = activos.set_index("Region")
+
+    #Cambiamos el nombre de una región solo por fines de comodidad en la visualización
+    activos = activos.rename(index={"Del Libertador General Bernardo O’Higgins":"O'Higgins"})
+
+    #Guardamos un dataframe con los valores de población total por región, nos será útil para ver una evolución proporcional
+    poblacion = activos["Poblacion"]
+    activos = activos.loc[:, "2020-04-13":]
+    proporcionalActivos = activos.div(poblacion, axis = 0).transpose()*100000
+    activos = activos.transpose()
+
+    activos.index = pd.to_datetime(activos.index)
+
+    columns_to_drop = activos.columns
+    activos["sum"] = activos.sum(axis=1)
+    activos = activos.drop(columns = columns_to_drop)
+    firstdate = -1
+    dicc = {}
+    BeforeValue = -1
+    for index, row in activos.iterrows():
+        if (firstdate == -1):
+            firstdate = index
+            BeforeValue = row
+        while(index > firstdate):
+            dicc[firstdate] = BeforeValue
+            firstdate += datetime.timedelta(days = 1)
+        firstdate += datetime.timedelta(days = 1)
+        BeforeValue = row
+    to_add = pd.DataFrame(dicc)
+    to_add = to_add.transpose()
+    # print(to_add)
+    # print(activos)
+    activos = activos.append(to_add)
+    activos = activos.sort_index()
+    # print(activos)
+    return activos
+
+def get_asintomaticos_diarios_nacional():
+    asintomaticos = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto27/CasosNuevosSinSintomas.csv", delimiter= ',')
+    asintomaticos = asintomaticos.set_index("Region")
+    asintomaticos = asintomaticos.transpose()
+    columns_to_drop = [region for region in asintomaticos.columns if region != "Total"]
+    asintomaticos = asintomaticos.drop(columns = columns_to_drop)
+    asintomaticos.index = pd.to_datetime(asintomaticos.index)
+    return asintomaticos
