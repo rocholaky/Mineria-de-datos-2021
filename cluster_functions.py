@@ -108,91 +108,91 @@ def get_densidad_contagios(Dates):
     return Contagios_final
 
 def get_data(fecha_inicio, fecha_final):
-	activos = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto19/CasosActivosPorComuna.csv",
-                      delimiter=',')
+    R_population, dates = get_datos_nacionales()
 
-	activos = activos.dropna(subset=['Codigo comuna'])
-	activos['Codigo comuna'] = activos['Codigo comuna'].apply(int).apply(str)
-	indices = activos[['Codigo comuna', 'Region', 'Comuna']] 
-	Poblacion = activos["Poblacion"]
-	activos = activos.drop(['Codigo comuna', "Codigo region", "Region","Comuna","Poblacion"], axis=1)
-	activos = activos.div(Poblacion, axis= 0)
-	activos = activos.transpose()
-	activos.index = pd.to_datetime(list(activos.index.values))
-	activos = activos.loc['2020-12-01':'2021-03-01']
-	activos = activos.transpose()
-	d = {'mean_act': activos.mean(axis=1), 'std_act': activos.std(axis=1)}
-	activosMedidas = pd.DataFrame(data=d).join(indices)
-	activosMedidas = activosMedidas.set_index('Comuna')
-	activosMedidas.index = [value.lower() for value in list(activosMedidas.index)]
-	activosMedidas.drop(columns=["Codigo comuna", "Region"], inplace=True)
+    activos = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto19/CasosActivosPorComuna.csv",
+                        delimiter=',')
+    activos = activos.dropna(subset=['Codigo comuna'])
+    activos['Codigo comuna'] = activos['Codigo comuna'].apply(int).apply(str)
+    indices = activos[['Codigo comuna', 'Region', 'Comuna']] 
+    Poblacion = activos["Poblacion"]
+    activos = activos.drop(['Codigo comuna', "Codigo region", "Region","Comuna","Poblacion"], axis=1)
+    activos = activos.div(Poblacion, axis= 0)
+    activos = activos.transpose()
+    activos.index = pd.to_datetime(list(activos.index.values))
+    activos = activos.loc['2020-12-01':'2021-03-01']
+    activos = activos.transpose()
+    d = {'mean_act': activos.mean(axis=1), 'std_act': activos.std(axis=1)}
+    activosMedidas = pd.DataFrame(data=d).join(indices)
+    activosMedidas = activosMedidas.set_index('Comuna')
+    activosMedidas.index = [value.lower() for value in list(activosMedidas.index)]
+    activosMedidas.drop(columns=["Codigo comuna", "Region"], inplace=True)
 
-	fallecidos = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto38/CasosFallecidosPorComuna.csv", delimiter= ',')
+    fallecidos = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto38/CasosFallecidosPorComuna.csv", delimiter= ',')
 
-	fallecidos = fallecidos.dropna(subset=['Codigo comuna'])
-	fallecidos['Codigo comuna'] = fallecidos['Codigo comuna'].apply(int).apply(str)
-	indices1 = fallecidos[['Codigo comuna', 'Region', 'Comuna']] 
-	Poblacion = fallecidos["Poblacion"]
-	fallecidos2 = fallecidos
-	fallecidos = fallecidos.drop(['Codigo comuna', "Codigo region", "Region","Comuna","Poblacion"], axis=1)
-	fallecidos = fallecidos.div(Poblacion, axis=0)
-	fallecidos = fallecidos.transpose()
-	fallecidos.index = pd.to_datetime(list(fallecidos.index.values))
-	fallecidos = fallecidos.loc[fecha_inicio:fecha_final]
-	fallecidos = fallecidos.transpose()
-	d1 = {'mean_fallecidos': fallecidos.mean(axis=1), 'std_fallecidos': fallecidos.std(axis=1)}
-	fallecidosMedidas = pd.DataFrame(data=d1).join(indices1)
-	fallecidosMedidas = fallecidosMedidas.set_index('Comuna')
-	fallecidosMedidas.index = [value.lower() for value in list(fallecidosMedidas.index)]
-	fallecidosMedidas.drop(columns=["Codigo comuna", "Region"], inplace=True)
+    fallecidos = fallecidos.dropna(subset=['Codigo comuna'])
+    fallecidos['Codigo comuna'] = fallecidos['Codigo comuna'].apply(int).apply(str)
+    indices1 = fallecidos[['Codigo comuna', 'Region', 'Comuna']] 
+    Poblacion = fallecidos["Poblacion"]
+    fallecidos2 = fallecidos
+    fallecidos = fallecidos.drop(['Codigo comuna', "Codigo region", "Region","Comuna","Poblacion"], axis=1)
+    fallecidos = fallecidos.div(Poblacion, axis=0)
+    fallecidos = fallecidos.transpose()
+    fallecidos.index = pd.to_datetime(list(fallecidos.index.values))
+    fallecidos = fallecidos.loc[fecha_inicio:fecha_final]
+    fallecidos = fallecidos.transpose()
+    d1 = {'mean_fallecidos': fallecidos.mean(axis=1), 'std_fallecidos': fallecidos.std(axis=1)}
+    fallecidosMedidas = pd.DataFrame(data=d1).join(indices1)
+    fallecidosMedidas = fallecidosMedidas.set_index('Comuna')
+    fallecidosMedidas.index = [value.lower() for value in list(fallecidosMedidas.index)]
+    fallecidosMedidas.drop(columns=["Codigo comuna", "Region"], inplace=True)
 
-	movilidadMedidas = getMovilidadDeComunasDeRegion(fecha_inicio, fecha_final)
-	contagiosMedidas = get_densidad_contagios(dates)
-	X = activosMedidas.join(fallecidosMedidas).join(movilidadMedidas).join(contagiosMedidas)
-	X = X.dropna()
+    movilidadMedidas = getMovilidadDeComunasDeRegion(fecha_inicio, fecha_final)
+    contagiosMedidas = get_densidad_contagios(dates)
+    X = activosMedidas.join(fallecidosMedidas).join(movilidadMedidas).join(contagiosMedidas)
+    X = X.dropna()
 
-	k_res = []
-	possible_k = range(1, 16)
-	for k in possible_k:
-	  k_means_alg = KMeans(n_clusters=k, random_state=100)
-	  k_means_alg.fit(X)
-	  k_res.append(k_means_alg.inertia_)
+    k_res = []
+    possible_k = range(1, 16)
+    for k in possible_k:
+        k_means_alg = KMeans(n_clusters=k, random_state=100)
+        k_means_alg.fit(X)
+        k_res.append(k_means_alg.inertia_)
 
-	plt.plot(possible_k, k_res, "r*")
-	plt.xlabel("Possibles clusters")
-	plt.xticks(possible_k)
-	plt.ylabel("SSE")
-	plt.title("N de clusters mediante técnica del codo")
+    plt.plot(possible_k, k_res, "r*")
+    plt.xlabel("Possibles clusters")
+    plt.xticks(possible_k)
+    plt.ylabel("SSE")
+    plt.title("N de clusters mediante técnica del codo")
 
-	return X
+    return X
 
 
-def get_cluster(X, n_clusters, model):
-	clusters = [list() for _ in range(n_clusters)]
-	for i in range(len(kmeans.labels_)):
-	    comuna = X.index[i]
-	    cluster = model.labels_[i]
-	    clusters[cluster].append(comuna)
-	
-	for cluster in clusters:
-		cluster.sort()
-	return clusters
+def get_cluster(X, model):
+    n_clusters = len(np.unique(model.labels_))
+    clusters = [list() for _ in range(n_clusters)]
+    for i in range(len(model.labels_)):
+        comuna = X.index[i]
+        cluster = model.labels_[i]
+        clusters[cluster].append(comuna)
+
+    for cluster in clusters:
+        cluster.sort()
+    return clusters
 
 
 
 def reduce_data(X, n_components):
-	reduced_data = PCA(n_components, random_state=100).fit_transform(X)
-	return reduced_data
+    reduced_data = PCA(n_components, random_state=100).fit_transform(X)
+    reduced_data = pd.DataFrame(reduced_data, index=X.index)
+    return reduced_data
 
-def show_clusters_kmeans(X, n_clusters):
-	X = reduce_data(X, n_clusters)
-	kmeans = KMeans(n_clusters=n_clusters, random_state=100)
-	kmeans.fit(X)
-	plt.scatter(X[:, 0], X[:, 1], c=kmeans.labels_)
-	plt.scatter(kmeans.cluster_centers_[:,0], kmeans.cluster_centers_[:,1], s=200, facecolors='none', edgecolors='r')
-	plt.title("kmeans values in 2D")
-	plt.show()
-
+def show_clusters(X,  model, is_kmeans=True):
+    plt.scatter(X.iloc[:, 0], X.iloc[:, 1], c=model.labels_)
+    if is_kmeans:
+        plt.scatter(model.cluster_centers_[:,0], model.cluster_centers_[:,1], s=200, facecolors='none', edgecolors='r')
+    plt.title("cluster values in 2D")
+    plt.show()
 
 
 def aglomerative(X, threshold):
