@@ -167,6 +167,28 @@ def get_data(fecha_inicio, fecha_final):
 
     return X
 
+def get_activosMedidas():
+    R_population, dates = get_datos_nacionales()
+
+    activos = pd.read_csv("https://raw.githubusercontent.com/MinCiencia/Datos-COVID19/master/output/producto19/CasosActivosPorComuna.csv",
+                        delimiter=',')
+    activos = activos.dropna(subset=['Codigo comuna'])
+    activos['Codigo comuna'] = activos['Codigo comuna'].apply(int).apply(str)
+    indices = activos[['Codigo comuna', 'Region', 'Comuna']] 
+    Poblacion = activos["Poblacion"]
+    activos = activos.drop(['Codigo comuna', "Codigo region", "Region","Comuna","Poblacion"], axis=1)
+    activos = activos.div(Poblacion, axis= 0)
+    activos = activos.transpose()
+    activos.index = pd.to_datetime(list(activos.index.values))
+    activos = activos.loc['2020-12-01':'2021-03-01']
+    activos = activos.transpose()
+    d = {'mean_act': activos.mean(axis=1), 'std_act': activos.std(axis=1)}
+    activosMedidas = pd.DataFrame(data=d).join(indices)
+    activosMedidas = activosMedidas.set_index('Comuna')
+    activosMedidas.index = [value.lower() for value in list(activosMedidas.index)]
+    activosMedidas.drop(columns=["Codigo comuna", "Region"], inplace=True)
+
+    return activosMedidas
 
 def get_cluster(X, model):
     n_clusters = len(np.unique(model.labels_))
